@@ -2,7 +2,8 @@ import axios from "axios";
 import { config } from "../config";
 
 export const UserService = {
-  inviteUser: async function (payload) {
+  // TODO: write proper types
+  inviteUser: async function (payload:object) { 
     const token = localStorage.getItem("token");
     try {
       const res = await axios.post(
@@ -19,7 +20,7 @@ export const UserService = {
       return e;
     }
   },
-  getUserEmailByLink: async function (token) {
+  getUserEmailByLink: async function (token:string) {
     try {
       const res = await axios.get(
         config.BASE_URL + config.GET_EMAIL_BY_TOKEN + token
@@ -29,7 +30,7 @@ export const UserService = {
       return e;
     }
   },
-  getAllUsers: async function (token, page, limit) {
+  getAllUsers: async function (token:string, page:number, limit:number) {
     const headers = {
       Authorization: `Bearer ${token}`,
     };
@@ -48,7 +49,7 @@ export const UserService = {
       return e;
     }
   },
-  getAllCountries: async function (token) {
+  getAllCountries: async function (token:string) {
     const headers = {
       Authorization: `Bearer ${token}`,
     };
@@ -62,7 +63,7 @@ export const UserService = {
       return e;
     }
   },
-  getUsersByCountries: async function (token,countryCode,page,limit) {
+  getUsersByCountries: async function (token:string,countryCode:string,page:number,limit:number) {
     const headers = {
       Authorization: `Bearer ${token}`,
     };

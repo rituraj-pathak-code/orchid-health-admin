@@ -19,7 +19,7 @@ const Login = () => {
 
   const mutation = useMutation({
     mutationFn: AuthService.loginUser, 
-    onSuccess: (data) => {
+    onSuccess: (data:object) => {
       console.log("Login success:", data);
       localStorage.setItem("role", data?.data?.role);
       localStorage.setItem("token", data?.tokenData);
