@@ -1,64 +1,109 @@
-import { DataGrid } from "@mui/x-data-grid";
+import Input from "../ui/Input";
+import { Button, Pagination, Tooltip } from "@mui/material";
+import { FaEye } from "react-icons/fa";
+import { FaEdit } from "react-icons/fa";
+import { FaTrash } from "react-icons/fa";
+import DataTable from "../ui/DataTable";
+import { MdOutlineVerified } from "react-icons/md";
 
 const columns = [
-  { field: "id", headerName: "ID", width: 90 },
   {
-    field: "firstName",
-    headerName: "First name",
-    width: 150,
-    editable: true,
+    id: "select",
+    size: 20,
+    header: ({ table }) => (
+      <input
+        type="checkbox"
+        checked={table.getIsAllRowsSelected()}
+        onChange={table.getToggleAllRowsSelectedHandler()}
+      />
+    ),
+    cell: ({ row }) => (
+      <input
+        type="checkbox"
+        checked={row.getIsSelected()}
+        onChange={row.getToggleSelectedHandler()}
+      />
+    ),
   },
   {
-    field: "lastName",
-    headerName: "Last name",
-    width: 150,
-    editable: true,
+    accessorKey: "first_name",
+    header: "First Name",
+    cell: (props) => <p>{props.getValue()}</p>,
   },
   {
-    field: "age",
-    headerName: "Age",
-    type: "number",
-    width: 110,
-    editable: true,
+    accessorKey: "last_name",
+    header: "Last Name",
+    cell: (props) => <p>{props.getValue()}</p>,
   },
   {
-    field: "fullName",
-    headerName: "Full name",
-    description: "This column has a value getter and is not sortable.",
-    sortable: false,
-    width: 160,
-    valueGetter: (value, row) => `${row.firstName || ""} ${row.lastName || ""}`,
+    accessorKey: "email",
+    header: "Email",
+    cell: (props) => {
+      const isEmailVerified = props.row.original.is_email_verified;
+      return (
+        <p className="flex items-center gap-[5px]">
+          {props.getValue()}{" "}
+          {isEmailVerified && (
+            <Tooltip title={"Verified"}>
+              <span className="cursor-pointer">
+                <MdOutlineVerified className="text-blue-500" />
+              </span>
+            </Tooltip>
+          )}
+        </p>
+      );
+    },
+  },
+  {
+    accessorKey: "primary_phone_number",
+    header: "Phone Number",
+    cell: (props) => {
+      const isPhoneVerified =
+        props.row.original.is_primary_phone_number_verified;
+      return (
+        <p className="flex items-center gap-[5px]">
+          {props.getValue()}{" "}
+          {isPhoneVerified && (
+            <Tooltip title={"Verified"}>
+              <span className="cursor-pointer">
+                <MdOutlineVerified className="text-blue-500" />
+              </span>
+            </Tooltip>
+          )}
+        </p>
+      );
+    },
+  },
+  {
+    accessorKey: "role",
+    header: "Role",
+    cell: (props) => <p>{props.getValue()}</p>,
+  },
+  {
+    id: "action",
+    size: 100,
+    header: "Action",
+    cell: ({ row }) => (
+      <div className="flex gap-2 items-center justify-between">
+        <button>
+          <FaEye size={16} color="#09A1E5" />
+        </button>
+        <button>
+          <FaEdit size={16} color="#FFD23B" />
+        </button>
+        <button>
+          <FaTrash size={14} color="#FF5178" />
+        </button>
+      </div>
+    ),
   },
 ];
 
-const rows = [
-  { id: 1, lastName: "Snow", firstName: "Jon", age: 14 },
-  { id: 2, lastName: "Lannister", firstName: "Cersei", age: 31 },
-  { id: 3, lastName: "Lannister", firstName: "Jaime", age: 31 },
-  { id: 4, lastName: "Stark", firstName: "Arya", age: 11 },
-  { id: 5, lastName: "Targaryen", firstName: "Daenerys", age: null },
-  { id: 6, lastName: "Melisandre", firstName: null, age: 150 },
-  { id: 7, lastName: "Clifford", firstName: "Ferrara", age: 44 },
-  { id: 8, lastName: "Frances", firstName: "Rossini", age: 36 },
-  { id: 9, lastName: "Roxie", firstName: "Harvey", age: 65 },
-];
-
-const UserTable = () => {
+const UserTable = ({ data, pagination, totalPages, onPageChange,loading }) => {
   return (
-    <DataGrid
-      rows={rows}
-      columns={columns}
-      initialState={{
-        pagination: {
-          paginationModel: {
-            pageSize: 5,
-          },
-        },
-      }}
-      pageSizeOptions={[5]}
-      checkboxSelection
-      disableRowSelectionOnClick
-    />
+    <div className="">
+      <DataTable columns={columns} data={data} pagination={pagination} totalPages={totalPages} onPageChange={onPageChange} loading={loading} />
+    </div>
   );
 };
 

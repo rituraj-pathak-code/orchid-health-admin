@@ -1,10 +1,10 @@
 import Dashboard from "../pages/Dashboard";
 import AdminContainer from "../components/Containers/AdminContainer";
-import Users from "../pages/Users";
+import UsersPage from "../pages/UsersPage";
 
 export const routes = [
   {
-    path: "/admin/dashboard",
+    path: "/",
     element: (
       <AdminContainer>
         <Dashboard />
@@ -13,10 +13,10 @@ export const routes = [
     roles: ["super_admin"],
   },
   {
-    path: "/admin/users",
+    path: "/users",
     element: (
       <AdminContainer>
-        <Users />
+        <UsersPage />
       </AdminContainer>
     ),
     roles: ["super_admin"],

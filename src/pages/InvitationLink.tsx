@@ -2,6 +2,8 @@ import { useParams } from "react-router-dom";
 import { Formik, Field, Form } from "formik";
 import * as Yup from "yup";
 import { Button, TextField } from "@mui/material";
+import { useEffect, useState } from "react";
+import { UserService } from "../services/userServices";
 
 // Validation Schema using Yup
 const validationSchema = Yup.object({
@@ -17,72 +19,98 @@ const validationSchema = Yup.object({
 });
 
 const InvitationLink = () => {
+  const [loading, setLoading] = useState(false)
+  const [email, setEmail] = useState("");
   const { token } = useParams();
+
+  const getEmailByTokenHandler = async () => {
+    setLoading(true)
+    const res = await UserService.getUserEmailByLink(token);
+    
+    if (res.status == 200) {
+      if(!res.data.data.email){
+        // TODO: if email not received then redirect to Error page
+      }
+      setLoading(false)
+      setEmail(res.data.data.email);
+    } else {
+      setLoading(false)(false)
+      // TODO: if email not received then redirect to Error page
+    }
+  };
+
+  useEffect(() => {
+    getEmailByTokenHandler();
+  }, []);
 
   console.log(token);
 
+  if(loading){
+    return (
+      <div>loading....</div>
+    )
+  }
+
   return (
     <div className="flex justify-center items-center h-screen">
-        <div className="w-[40vw] border p-4">
-         <h2 className="mb-4">Invitation</h2>
+      <div className="w-[40vw] border p-4">
+        <h2 className="mb-4">Invitation</h2>
         <Formik
-            initialValues={{
+          initialValues={{
             email: "",
             password: "",
             confirmPassword: "",
-            }}
-            validationSchema={validationSchema}
-            onSubmit={(values) => {
+          }}
+          validationSchema={validationSchema}
+          onSubmit={(values) => {
             console.log("Form Data:", values);
-            }}
+          }}
         >
-            {({ errors, touched }) => (
+          {({ errors, touched }) => (
             <Form className="flex flex-col gap-4">
-                {/* Email */}
-                <div>
+              {/* Email */}
+              <div>
                 <Field
-                    name="email"
-                    as={TextField}
-                    placeholder="Email"
-                    fullWidth
-                    value="bikash"
-                    error={touched.email && !!errors.email}
-                    helperText={touched.email && errors.email}
+                  name="email"
+                  as={TextField}
+                  placeholder="Email"
+                  fullWidth
+                  value={email}
                 />
-                </div>
+              </div>
 
-                {/* Password */}
-                <div>
+              {/* Password */}
+              <div>
                 <Field
-                    name="password"
-                    as={TextField}
-                    placeholder="Password"
-                    type="password"
-                    fullWidth
-                    error={touched.password && !!errors.password}
-                    helperText={touched.password && errors.password}
+                  name="password"
+                  as={TextField}
+                  placeholder="Password"
+                  type="password"
+                  fullWidth
+                  error={touched.password && !!errors.password}
+                  helperText={touched.password && errors.password}
                 />
-                </div>
+              </div>
 
-                {/* Confirm Password */}
-                <div>
+              {/* Confirm Password */}
+              <div>
                 <Field
-                    name="confirmPassword"
-                    as={TextField}
-                    placeholder="Confirm Password"
-                    type="password"
-                    fullWidth
-                    error={touched.confirmPassword && !!errors.confirmPassword}
-                    helperText={touched.confirmPassword && errors.confirmPassword}
+                  name="confirmPassword"
+                  as={TextField}
+                  placeholder="Confirm Password"
+                  type="password"
+                  fullWidth
+                  error={touched.confirmPassword && !!errors.confirmPassword}
+                  helperText={touched.confirmPassword && errors.confirmPassword}
                 />
-                </div>
+              </div>
 
-                {/* Submit Button */}
-                <Button type="submit">Join Orchid Health</Button>
+              {/* Submit Button */}
+              <Button type="submit">Join Orchid Health</Button>
             </Form>
-            )}
+          )}
         </Formik>
-        </div>
+      </div>
     </div>
   );
 };

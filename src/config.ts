@@ -1,7 +1,11 @@
 export const config = {
-    BASE_URL: "https://377d-2401-4900-1c3b-7927-4d77-b451-95b7-af48.ngrok-free.app",
+    BASE_URL: "https://telehealth-backend-fzn8.onrender.com",
     LOGIN : "/orchid-health/login",
-    INVITE_USER : "/orchid-health/invite-user/email"
+    INVITE_USER : "/orchid-health/invite-user/email",
+    GET_EMAIL_BY_TOKEN: "/orchid-health/invite-user/get-email/",
+    FETCH_ALL_USERS: "/orchid-health/users",
+    FETCH_OPERATING_COUNTRIES: "/orchid-health/operating-countries",
+    FETCH_USERS_BY_COUNTRIES: "/orchid-health/users-by-country/"
 }
 
 
