@@ -1,7 +1,4 @@
-import { CustomSelect } from "../ui/CustomSelect";
-import NewModal, { ModalBody, ModalHeader } from "../ui/NewModal";
 import { Formik, Form, Field } from "formik";
-import * as Yup from "yup";
 import { UserService } from "../../services/userServices";
 import {
   Select,
@@ -19,29 +16,41 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/ui/Input";
 import { Button } from "../ui/button";
-
-// Validation Schema using Yup
-const validationSchema = Yup.object({
-  firstName: Yup.string().required("First Name is required"),
-  lastName: Yup.string().required("Last Name is required"),
-  email: Yup.string().email("Invalid email").required("Email is required"),
-  primaryPhoneNumber: Yup.string().required("Phone Number is required"),
-  countryCode: Yup.string().required("Country Code is required"),
-  role: Yup.string().required("Role is required"),
-});
+import { InviteUser } from "@/types/userTypes";
+import { inviteUserSchema } from "@/lib/validations";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "react-toastify";
+import { useState } from "react";
 
 const InviteUserModal = () => {
-  const inviteUserHandler = async (payload) => {
-    console.log(payload);
-    const res = await UserService.inviteUser(payload);
-    console.log(res);
+  const [open, setOpen] = useState(false);
+  const mutation = useMutation({
+    mutationFn: (payload: { data: InviteUser; token: string }) => {
+      return UserService.inviteUser(payload.data, payload.token);
+    },
+    onSuccess: () => {
+      toast.success("User invitation sent");
+      setOpen(false);
+    },
+    onError: (error) => {
+      console.error("Invitation error:", error);
+      toast.success("Something went wrong");
+    },
+  });
+
+  const inviteUserHandler = async (payload: InviteUser) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      mutation.mutate({ data: payload, token });
+    }
   };
+
   return (
-    <Dialog>
+    <Dialog  open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="default">Invite User</Button>
+        <Button variant="default" onClick={() => setOpen(true)}>Invite User</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -50,7 +59,6 @@ const InviteUserModal = () => {
             Fill in the details to add new user
           </DialogDescription>
         </DialogHeader>
-
         <div>
           <Formik
             initialValues={{
@@ -61,7 +69,7 @@ const InviteUserModal = () => {
               countryCode: "",
               role: "",
             }}
-            validationSchema={validationSchema}
+            validationSchema={inviteUserSchema}
             onSubmit={(values) => {
               inviteUserHandler(values);
             }}
@@ -130,7 +138,7 @@ const InviteUserModal = () => {
                       name="countryCode"
                       as={Select}
                       labelId="countryCode-label"
-                      onValueChange={(countryCode) =>
+                      onValueChange={(countryCode: string) =>
                         setFieldValue("countryCode", countryCode)
                       }
                     >
@@ -155,7 +163,9 @@ const InviteUserModal = () => {
                       name="role"
                       as={Select}
                       labelId="role-label"
-                      onValueChange={(role) => setFieldValue("role", role)}
+                      onValueChange={(role: string) =>
+                        setFieldValue("role", role)
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select Role" />
@@ -175,8 +185,8 @@ const InviteUserModal = () => {
                 </div>
 
                 <DialogFooter className="mt-6">
-                  <Button type="submit" variant="default">
-                    Submit
+                  <Button type="submit" variant="default" disabled={mutation.isPending}>
+                    {mutation.isPending ? "Submitting" : "Submit"}
                   </Button>
                 </DialogFooter>
               </Form>

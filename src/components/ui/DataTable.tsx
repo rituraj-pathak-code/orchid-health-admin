@@ -1,18 +1,17 @@
-import { CircularProgress, Pagination, TablePagination } from "@mui/material";
+import { CircularProgress, Pagination } from "@mui/material";
 import {
   flexRender,
   getCoreRowModel,
-  getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
 import { Skeleton } from "./skeleton";
+import { DataTableProps } from "@/types/userTypes";
 
-const DataTable = ({
+const DataTable:React.FC<DataTableProps> = ({
   columns,
   data: DATA,
   pagination,
-  totalPages,
   onPageChange,
   loading,
 }) => {
@@ -29,7 +28,7 @@ const DataTable = ({
     getCoreRowModel: getCoreRowModel(),
     columnResizeMode: "onChange",
     onRowSelectionChange: setRowSelection,
-    pageCount: totalPages,
+    pageCount: pagination.totalPages,
     manualPagination: true,
   });
 
@@ -92,7 +91,7 @@ const DataTable = ({
           color="primary"
           variant="outlined"
           shape="rounded"
-          count={totalPages}
+          count={pagination.totalPages}
           page={pagination.pageIndex}
           onChange={onPageChange}
         />

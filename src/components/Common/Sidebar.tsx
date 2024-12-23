@@ -6,7 +6,7 @@ import { FaChevronDown } from "react-icons/fa6";
 import { FaAngleUp } from "react-icons/fa6";
 
 const Sidebar = () => {
-  const [openSubMenu, setOpenSubMenu] = useState(null);
+  const [openSubMenu, setOpenSubMenu] = useState<number | null>(null);
   const location = useLocation();
   return (
     <div className="bg-sidebarbg w-[250px] min-h-[100vh] text-textPrimary font-poppins h-full sticky top-0">

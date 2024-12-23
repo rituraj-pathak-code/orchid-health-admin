@@ -8,3 +8,12 @@ export const loginSchema = Yup.object({
       .min(6, "Password must be at least 6 characters")
       .required("Password is required"),
   });
+
+export const inviteUserSchema = Yup.object({
+  firstName: Yup.string().required("First Name is required"),
+  lastName: Yup.string().required("Last Name is required"),
+  email: Yup.string().email("Invalid email").required("Email is required"),
+  primaryPhoneNumber: Yup.string().required("Phone Number is required"),
+  countryCode: Yup.string().required("Country Code is required"),
+  role: Yup.string().required("Role is required"),
+});

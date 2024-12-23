@@ -3,8 +3,7 @@ import { config } from "../config";
 
 export const UserService = {
   // TODO: write proper types
-  inviteUser: async function (payload:object) { 
-    const token = localStorage.getItem("token");
+  inviteUser: async function (payload:object,token:unknown) { 
     try {
       const res = await axios.post(
         config.BASE_URL + config.INVITE_USER,
@@ -16,21 +15,21 @@ export const UserService = {
         }
       );
       return res;
-    } catch (e) {
-      return e;
+    } catch (error) {
+      return Promise.reject(error);  
     }
   },
-  getUserEmailByLink: async function (token:string) {
+  getUserEmailByLink: async function (token:unknown) {
     try {
       const res = await axios.get(
         config.BASE_URL + config.GET_EMAIL_BY_TOKEN + token
       );
       return res;
-    } catch (e) {
-      return e;
+    } catch (error) {
+      return Promise.reject(error);  
     }
   },
-  getAllUsers: async function (token:string, page:number, limit:number) {
+  getAllUsers: async function (token:unknown, page:number, limit:number) {
     const headers = {
       Authorization: `Bearer ${token}`,
     };
@@ -44,12 +43,12 @@ export const UserService = {
           limit,
         { headers }
       );
-      return res;
-    } catch (e) {
-      return e;
+      return res.data;
+    } catch (error) {
+      return Promise.reject(error);  
     }
   },
-  getAllCountries: async function (token:string) {
+  getAllCountries: async function (token:unknown) {
     const headers = {
       Authorization: `Bearer ${token}`,
     };
@@ -58,12 +57,12 @@ export const UserService = {
         config.BASE_URL + config.FETCH_OPERATING_COUNTRIES,
         { headers }
       );
-      return res;
-    } catch (e) {
-      return e;
+      return res.data.data;
+    } catch (error) {
+      return Promise.reject(error);  
     }
   },
-  getUsersByCountries: async function (token:string,countryCode:string,page:number,limit:number) {
+  getUsersByCountries: async function (token:unknown,countryCode:string,page:number,limit:number) {
     const headers = {
       Authorization: `Bearer ${token}`,
     };
@@ -77,9 +76,9 @@ export const UserService = {
           limit,
         { headers }
       );
-      return res;
-    } catch (e) {
-      return e;
+      return res.data;
+    } catch (error) {
+      return Promise.reject(error);  
     }
   },
 };

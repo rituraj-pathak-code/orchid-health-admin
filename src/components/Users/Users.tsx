@@ -1,133 +1,91 @@
-import { Button } from "@/components/ui/button"
-
 import UserTable from "./UserTable";
 import { UserService } from "../../services/userServices";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import InviteUserModal from "./InviteUserModal";
-
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
+import { useQuery } from "@tanstack/react-query";
+import SelectCountry from "../SelectCountry";
+import { UsersResponse } from "@/types/userTypes";
+import { toast } from "react-toastify";
 
 const Users = () => {
-  const token = localStorage.getItem("token");
-  const [loading, setLoading] = useState(false);
-  const [openModal, setOpenModal] = useState(false);
-  const [users, setUsers] = useState([]);
-  const [countries, setCountries] = useState([]);
-  const [totalPages, setTotalPages] = useState(0);
+  const [country, setCountry] = useState<string | null>(null);
+  const token: unknown = localStorage.getItem("token");
   const [pagination, setPagination] = useState({
     pageIndex: 1,
     pageSize: 10,
+    totalPages: 0,
   });
 
-  const handlePageChange = (e, newPageIndex) => {
+  const {
+    data: users,
+    isLoading,
+    isError,
+    isSuccess,
+    error,
+  } = useQuery<UsersResponse>({
+    queryKey: [
+      "users",
+      token,
+      pagination.pageIndex,
+      pagination.pageSize,
+      country,
+    ],
+    queryFn: () => {
+      if (country) {
+        return UserService.getUsersByCountries(
+          token,
+          country,
+          pagination.pageIndex,
+          pagination.pageSize
+        );
+      } else {
+        return UserService.getAllUsers(
+          token,
+          pagination.pageIndex,
+          pagination.pageSize
+        );
+      }
+    },
+    staleTime: 5000,
+    retry: 2,
+  });
+
+  useEffect(() => {
+    if (isSuccess && users) {
+      setPagination((prev) => ({
+        ...prev,
+        pageSize: users.limit,
+        totalPages: users.totalPages,
+      }));
+    } else if (isError && error instanceof Error) {
+      console.log(error);
+      toast.error("An unexpected error occurred.",{toastId:'userfetch-failed'});
+    }
+  }, [isSuccess, users, isError, error]);
+
+  const handlePageChange = (e: ChangeEvent<unknown>, newPageIndex: number) => {
+    console.log(e)
     setPagination((prev) => ({ ...prev, pageIndex: newPageIndex }));
   };
 
-  const fetchOperatingCountries = async (token) => {
-    const res = await UserService.getAllCountries(token);
-    if (res.status == 200) {
-      setCountries(res.data.data);
-    }
+  const handleCountrySelect = (country: string | null) => {
+    setCountry(country);
   };
-
-  const fetchUsers = async (token) => {
-    setLoading(true);
-    const res = await UserService.getAllUsers(
-      token,
-      pagination.pageIndex,
-      pagination.pageSize
-    );
-    console.log(res);
-    if (res.status == 200) {
-      setUsers(res.data.data);
-      setTotalPages(res.data.totalPages);
-      setLoading(false);
-    } else {
-      setLoading(false);
-      console.error("Error fetching data:");
-    }
-  };
-  const fetchUsersByCountry = async (
-    token,
-    countryCode,
-    page = pagination.pageIndex,
-    pageSize = pagination.pageSize
-  ) => {
-    setLoading(true);
-    const res = await UserService.getUsersByCountries(
-      token,
-      countryCode,
-      page,
-      pageSize
-    );
-    console.log(res);
-    if (res.status == 200) {
-      setUsers(res.data.data);
-      setTotalPages(res.data.totalPages);
-      setLoading(false);
-    } else {
-      setLoading(false);
-      console.error("Error fetching data:");
-    }
-  };
-
-  const onCountryChange = (country) => {
-    if (country == "ALL") {
-      fetchUsers(token);
-    } else {
-      fetchUsersByCountry(token, country, 1, 10);
-      setPagination((prev) => ({
-        pageIndex: 1,
-        pageSize: 10,
-      }));
-    }
-  };
-
-  useEffect(() => {
-    if (token) {
-      fetchUsers(token);
-      fetchOperatingCountries(token);
-    }
-  }, [pagination.pageIndex]);
 
   return (
     <>
       <div className="">
         <div className="mb-4 flex justify-between items-end">
-          <div className="w-[250px]">
-            <h3 className="font-bold mb-2 text-sm">Select Country</h3>
-            <Select onValueChange={onCountryChange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select Country" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">ALL</SelectItem>
-                {countries.map((item) => (
-                  <SelectItem  value={item?.country_code}>
-                    {item.country_name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <InviteUserModal  />
+          <SelectCountry handleCountrySelect={handleCountrySelect} />
+          <InviteUserModal />
         </div>
         <UserTable
-          data={users}
+          data={users?.data || []}
           pagination={pagination}
-          totalPages={totalPages}
           onPageChange={handlePageChange}
-          loading={loading}
+          loading={isLoading}
         />
       </div>
-     
     </>
   );
 };

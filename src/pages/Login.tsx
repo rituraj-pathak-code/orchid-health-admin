@@ -1,5 +1,5 @@
 import { Button } from "@mui/material";
-import {Input} from "@/components/ui/Input";
+import { Input } from "@/components/ui/Input";
 import { AuthService } from "../services/authServices";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -7,7 +7,8 @@ import { loginSchema } from "../lib/validations";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import image from "../assets/login_image.jpg";
 import { useMutation } from "@tanstack/react-query";
-
+import { AxiosError } from "axios";
+import { LoginFormValues, LoginResponse } from "@/types/loginTypes";
 
 const initialValues = {
   email: "bikashkalita775@gmail.com",
@@ -17,24 +18,26 @@ const initialValues = {
 const Login = () => {
   const navigate = useNavigate();
 
-  const mutation = useMutation({
-    mutationFn: AuthService.loginUser, 
-    onSuccess: (data:object) => {
-      console.log("Login success:", data);
+  const mutation = useMutation<LoginResponse, AxiosError, LoginFormValues>({
+    mutationFn: AuthService.loginUser,
+    onSuccess: (data) => {
       localStorage.setItem("role", data?.data?.role);
       localStorage.setItem("token", data?.tokenData);
       toast.success("Login successful!");
       navigate("/");
     },
-    onError: (error) => {
+    onError: (error: AxiosError) => {
       console.error("Login error:", error);
       if (error.response?.status === 409) {
         toast.error("Invalid Credentials", { toastId: "inv-login" });
+      } else if (error.response?.status === 404) {
+        toast.error("User not found", { toastId: "not-found-login" });
       } else {
         toast.error("Something went wrong", { toastId: "wrong-login" });
       }
     },
   });
+
   return (
     <div className="h-screen flex justify-center items-center bg-gray-50">
       <div className="shadow-sm flex items-center lg:flex-row flex-col py-2 rounded bg-white">
@@ -89,7 +92,11 @@ const Login = () => {
                     className="text-red-500 text-sm"
                   />
                 </div>
-                <Button variant="contained" type="submit" disabled={mutation.isPending}>
+                <Button
+                  variant="contained"
+                  type="submit"
+                  disabled={mutation.isPending}
+                >
                   {mutation.isPending ? "Please Wait" : "Sign in"}
                 </Button>
               </Form>

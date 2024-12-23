@@ -1,12 +1,13 @@
-import Input from "../ui/Input";
-import { Button, Pagination, Tooltip } from "@mui/material";
+import {Tooltip } from "@mui/material";
 import { FaEye } from "react-icons/fa";
 import { FaEdit } from "react-icons/fa";
 import { FaTrash } from "react-icons/fa";
 import DataTable from "../ui/DataTable";
 import { MdOutlineVerified } from "react-icons/md";
+import { User, UserTableProps } from "@/types/userTypes";
+import { ColumnDef } from "@tanstack/react-table";
 
-const columns = [
+const columns: ColumnDef<User>[] = [
   {
     id: "select",
     size: 20,
@@ -28,12 +29,12 @@ const columns = [
   {
     accessorKey: "first_name",
     header: "First Name",
-    cell: (props) => <p>{props.getValue()}</p>,
+    cell: (props) => <p>{props.getValue() as React.ReactNode}</p>,
   },
   {
     accessorKey: "last_name",
     header: "Last Name",
-    cell: (props) => <p>{props.getValue()}</p>,
+    cell: (props) => <p>{props.getValue() as React.ReactNode}</p>,
   },
   {
     accessorKey: "email",
@@ -42,7 +43,7 @@ const columns = [
       const isEmailVerified = props.row.original.is_email_verified;
       return (
         <p className="flex items-center gap-[5px]">
-          {props.getValue()}{" "}
+          {props.getValue() as React.ReactNode}{" "}
           {isEmailVerified && (
             <Tooltip title={"Verified"}>
               <span className="cursor-pointer">
@@ -62,7 +63,7 @@ const columns = [
         props.row.original.is_primary_phone_number_verified;
       return (
         <p className="flex items-center gap-[5px]">
-          {props.getValue()}{" "}
+          {props.getValue() as React.ReactNode}{" "}
           {isPhoneVerified && (
             <Tooltip title={"Verified"}>
               <span className="cursor-pointer">
@@ -77,13 +78,13 @@ const columns = [
   {
     accessorKey: "role",
     header: "Role",
-    cell: (props) => <p>{props.getValue()}</p>,
+    cell: (props) => <p>{props.getValue() as React.ReactNode}</p>,
   },
   {
     id: "action",
     size: 100,
     header: "Action",
-    cell: ({ row }) => (
+    cell: () => (
       <div className="flex gap-2 items-center justify-between">
         <button>
           <FaEye size={16} color="#09A1E5" />
@@ -99,10 +100,10 @@ const columns = [
   },
 ];
 
-const UserTable = ({ data, pagination, totalPages, onPageChange,loading }) => {
+const UserTable:React.FC<UserTableProps> = ({ data, pagination, onPageChange,loading }) => {
   return (
     <div className="">
-      <DataTable columns={columns} data={data} pagination={pagination} totalPages={totalPages} onPageChange={onPageChange} loading={loading} />
+      <DataTable columns={columns} data={data} pagination={pagination} onPageChange={onPageChange} loading={loading} />
     </div>
   );
 };
